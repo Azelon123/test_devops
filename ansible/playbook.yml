@@ -1,0 +1,20 @@
+---
+- name: Deploy server
+  hosts: all
+  become: yes
+  vars:
+    deploy_user: "deploy"
+    default_user_to_remove: "debian"
+
+  roles:
+    - role: common
+    - role: python
+    - role: mysql 
+    - role: composer
+    - role: nginx
+
+  tasks:
+    - name: Reboot server
+      reboot:
+        msg: "Reboot initiated by Ansible after setup"
+        reboot_timeout: 120

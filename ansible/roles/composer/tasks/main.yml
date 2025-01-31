@@ -1,0 +1,35 @@
+---
+
+- name: Install PHP and required extensions
+  apt:
+    name:
+      - php-cli
+      - php-mbstring
+      - php-xml
+      - unzip
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Download Composer installer
+  ansible.builtin.get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-setup.php
+    mode: '0755'
+
+- name: Install Composer
+  ansible.builtin.command: php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+  args:
+    creates: /usr/local/bin/composer
+  register: composer_install
+
+- name: Verify composer installed
+  ansible.builtin.command: composer --version
+  register: composer_version
+  changed_when: false
+  ignore_errors: true
+  timeout: 10
+
+- name: Debug composer version
+  ansible.builtin.debug:
+    var: composer_version.stdout

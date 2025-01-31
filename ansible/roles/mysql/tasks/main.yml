@@ -1,0 +1,50 @@
+---
+- name: Ensure dependencies are installed
+  apt:
+    name:
+      - wget
+      - lsb-release
+      - gnupg2
+      - debconf-utils
+    state: present
+    update_cache: yes
+
+- name: Download MySQL APT Config
+  get_url:
+    url: "https://repo.mysql.com//mysql-apt-config_0.8.33-1_all.deb"
+    dest: "/tmp/mysql-apt-config.deb"
+
+- name: Install MySQL APT Config
+  command: dpkg -i /tmp/mysql-apt-config.deb
+  become: yes
+  register: mysql_apt_config
+  ignore_errors: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  when: mysql_apt_config is succeeded
+
+- name: Install MySQL 5.7 (MariaDB as fallback)
+  apt:
+    name: mariadb-server
+    state: present
+
+- name: Install required MySQL Python libraries
+  apt:
+    name:
+      - python3-pymysql
+      - default-libmysqlclient-dev
+    state: present
+
+- name: Set MySQL root password
+  community.mysql.mysql_user:
+    name: root
+    password: "{{ mysql_root_password }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    host: localhost
+    login_user: root
+    login_password: ''
+    state: present
+  become: yes
+  ignore_errors: yes

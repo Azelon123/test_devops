@@ -1,0 +1,56 @@
+---
+- name: Create build directory
+  ansible.builtin.file:
+    path: /home/developer
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Download Python 3.9.6
+  ansible.builtin.get_url:
+    url: https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz
+    dest: /home/developer/Python-3.9.6.tgz
+
+- name: Extract Python 3.9.6
+  ansible.builtin.unarchive:
+    src: /home/developer/Python-3.9.6.tgz
+    dest: /home/developer
+    remote_src: yes
+
+- name: Configure Python 3.9.6
+  ansible.builtin.command: ./configure --prefix=/opt/python3
+  args:
+    chdir: /home/developer/Python-3.9.6
+
+- name: Build python
+  command: make
+  args:
+    chdir: /home/developer/Python-3.9.6
+  become: yes
+
+- name: Install python
+  command: make install
+  args:
+    chdir: /home/developer/Python-3.9.6
+  become: yes
+
+
+- name: Install/Upgrade pip
+  ansible.builtin.command: /opt/python3/bin/pip3.9 install --upgrade pip
+ 
+
+- name: Install dev packages for mysqlclient
+  apt:
+    name:
+      - pkg-config
+      - libmariadb-dev  
+    state: present
+    update_cache: yes
+  
+
+- name: Install required Python packages
+  command: /opt/python3/bin/pip3.9 install pycurl mysqlclient mysql.connector certifi redis sentry-sdk
+  args:
+    chdir: /home/developer/Python-3.9.6
+  register: python_packages_install

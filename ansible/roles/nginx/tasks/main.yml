@@ -1,0 +1,31 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Ensure nginx is started and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  ignore_errors: yes #удалить
+
+- name: Copy main nginx.conf
+  ansible.builtin.copy:
+    src: nginx.conf_
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+
+- name: Create nginx logrotate config
+  ansible.builtin.copy:
+    src: logrotate_nginx.conf
+    dest: /etc/logrotate.d/nginx
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Force logrotate reload

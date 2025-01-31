@@ -1,0 +1,9 @@
+---
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+
+- name: Force logrotate reload
+  ansible.builtin.command: systemctl restart logrotate
+  become: yes
