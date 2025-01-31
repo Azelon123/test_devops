@@ -1,6 +1,6 @@
 ---
 
-- name: Install PHP and required extensions
+- name: Install PHP
   apt:
     name:
       - php-cli
@@ -23,13 +23,3 @@
     creates: /usr/local/bin/composer
   register: composer_install
 
-- name: Verify composer installed
-  ansible.builtin.command: composer --version
-  register: composer_version
-  changed_when: false
-  ignore_errors: true
-  timeout: 10
-
-- name: Debug composer version
-  ansible.builtin.debug:
-    var: composer_version.stdout

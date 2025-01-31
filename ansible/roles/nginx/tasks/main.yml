@@ -5,12 +5,7 @@
     state: present
     update_cache: yes
 
-- name: Ensure nginx is started and enabled
-  ansible.builtin.service:
-    name: nginx
-    state: started
-    enabled: true
-  ignore_errors: yes #удалить
+
 
 - name: Copy main nginx.conf
   ansible.builtin.copy:
@@ -21,7 +16,7 @@
     mode: '0644'
 
 
-- name: Create nginx logrotate config
+- name: logrotate config
   ansible.builtin.copy:
     src: logrotate_nginx.conf
     dest: /etc/logrotate.d/nginx
@@ -29,3 +24,17 @@
     group: root
     mode: '0644'
   notify: Force logrotate reload
+
+- name: Create defaul.conf
+  file:
+    path: /etc/nginx/default.conf
+    state: touch
+    mode: '0644'
+  become: yes
+
+- name: Restart start
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  ignore_errors: yes #удалить

@@ -30,7 +30,7 @@
     name: mariadb-server
     state: present
 
-- name: Install required MySQL Python libraries
+- name: Install MySQL Python libraries
   apt:
     name:
       - python3-pymysql
